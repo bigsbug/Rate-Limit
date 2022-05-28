@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rate_limit.apps.RateLimitConfig",
+    "test_app.apps.TestAppConfig",
 ]
 
 MIDDLEWARE = [
