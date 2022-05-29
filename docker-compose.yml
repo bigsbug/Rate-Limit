@@ -1,15 +1,56 @@
 version: '3.1'
 
 services:
-  Postgresql-DB:
+#### Databases ####
+
+  postgresql-DB:
     image: postgres:alpine
     restart: always
     environment:
       - POSTGRES_DB=django-RateLimit
       - POSTGRES_USER=django
       - POSTGRES_PASSWORD=django-password
-    
+    volumes:
+      - db-data:/var/lib/postgresql/data
     expose:
       - 5432
     ports:
       - 5432:5432
+
+  redis-DB:
+    image: redis:alpine
+    restart: always
+    expose:
+      - 6379
+    ports:
+      - 6379:6379
+
+###  networks and proxys  ###
+  
+  gunicorn:
+    build: 
+      dockerfile: ./dockerfile
+    volumes:
+      - ./RateLimit:/src:rw  
+    restart: always
+    environment:
+      - thread=2
+      - worker=1
+      - ip=0.0.0.0
+      - port:80
+  
+  nginx:
+    image: nginx:1.21.6-alpine
+    restart: always
+    expose:
+      - 8080
+    ports:
+      - 8080:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:rw
+    depends_on:
+      - gunicorn
+# # # # # # # # # # # # #
+
+volumes:
+  db-data:
