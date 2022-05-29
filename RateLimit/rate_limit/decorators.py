@@ -1,5 +1,4 @@
 from typing import Callable
-from webbrowser import get
 from django.http import HttpRequest
 from rate_limit.tools import get_ip
 
