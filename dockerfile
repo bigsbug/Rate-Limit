@@ -10,7 +10,7 @@ ENV ip=0.0.0.0
 ENV port=80
 
 COPY ./RateLimit .
-RUN pip install --no-cache-dir django redis django-redis gunicorn psycopg2-binary
+RUN pip install --no-cache-dir django -r ./requirements.txt
 
 # production
 # CMD  gunicorn --workers=${worker} --threads=${thread} -b ${ip}:${port} RateLimit.wsgi 
