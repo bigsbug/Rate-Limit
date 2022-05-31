@@ -23,22 +23,22 @@ class SettingsHaveTestCase(TestCase):
     def setUp(self) -> None:
         self.settings = ValidSettings()
 
-    def test_settings_have_one_parameter(self):
+    def test_with_one_parameter(self):
         result = settings_have(self.settings, "RATE_LIMIT")
         excepted = self.settings.RATE_LIMIT
         self.assertEqual(result, excepted)
 
-    def test_settings_have_second_parameter(self):
+    def test_with_second_parameter(self):
         result = settings_have(self.settings, "RATE_LIMIT", "REDIS")
         excepted = self.settings.RATE_LIMIT.get("REDIS")
         self.assertEqual(result, excepted)
 
-    def test_settins_have_worng_parameter(self):
+    def test_with_worng_parameter(self):
         result = settings_have(self.settings, "RATE_LIMIT", "RED")
         excepted = None
         self.assertEqual(result, excepted)
 
-    def test_settins_have_worng_parameter_2(self):
+    def test_with_worng_parameter_2(self):
         result = settings_have(self.settings, "RATE_LIMITS", "REDIS")
         excepted = None
         self.assertEqual(result, excepted)
@@ -78,22 +78,22 @@ class GetIpTestCase(TestCase):
             "some-path", **self.invalid_headers
         )
 
-    def test_get_ip_X_Real_IP(self):
+    def test_X_Real_IP(self):
         result = get_ip(self.reqeust_with_X_Real_Ip)
         excepted = "127.0.0.1"
         self.assertEqual(result, excepted)
 
-    def test_get_ip_X_Forwarded_For(self):
+    def test_X_Forwarded_For(self):
         result = get_ip(self.reqeust_with_X_Forwarded_For)
         excepted = "127.0.0.1"
         self.assertEqual(result, excepted)
 
-    def test_get_ip_X_Forwarded_For_With_Multi_Ip(self):
+    def test_X_Forwarded_For_With_Multi_Ip(self):
         result = get_ip(self.reqeust_with_X_Forwarded_For_With_Multi_IP)
         excepted = "127.0.0.1"
         self.assertEqual(result, excepted)
 
-    def test_get_ip_Invalid_Headers(self):
+    def test_Invalid_Headers(self):
         result = get_ip(self.reqeust_with_Invalid_Headers)
         excepted = None
         self.assertEqual(result, excepted)
