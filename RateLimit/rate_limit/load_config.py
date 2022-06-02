@@ -1,15 +1,16 @@
 from django.conf import settings
 from rate_limit.exceptions import CantFindBackendRedis, InvalidConfig
 from rate_limit.tools import settings_have
+from load_config_interface import LoadConfigDB
 
 DEFAULT_KEY_PREFIX = "RATE_LIMIT"
 
 
-class LoadRedsiSettings:
+class LoadRedsiSettings(LoadConfigDB):
     def __init__(self, settings) -> None:
         self.settings = settings
 
-    def find_redis_config(self) -> dict:
+    def find_config(self) -> dict:
         """find redis configuration from settings
 
         Raises:
