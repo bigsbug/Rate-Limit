@@ -85,9 +85,11 @@ DATABASES = {
         "PASSWORD": "django-password",
     }
 }
-# RATE_LIMIT = {
-#     "REDIS": {1: "SD"},
-# }
+RATE_LIMIT = {
+    "REDIS": {
+        "LOCATION": "redis://127.0.0.1:6379/1",
+    },
+}
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
