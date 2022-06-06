@@ -1,7 +1,7 @@
 from abc import ABC, abstractclassmethod
 
 
-class LoadConfigDB(ABC):
+class ConfigLoderInterface(ABC):
     @abstractclassmethod
     def find_config(self, settings):
         ...
