@@ -30,7 +30,10 @@ def lookup_setting(settings, settings_name):
             if config is None:
                 config = getattr(settings, config_name, {})
             else:
-                config = config.get(str(config_name), {})
+                try:
+                    config = config.get(str(config_name), {})
+                except AttributeError:
+                    return {}
         return config
     else:
         return getattr(settings, str(settings_name[0]), {})
