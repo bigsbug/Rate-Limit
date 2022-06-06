@@ -1,8 +1,8 @@
 from typing import List
 from django.conf import settings
-from exceptions import CantFindBackendRedis, InvalidConfig, ConfigNotFound
-from tools import lookup_setting
-from load_config_interface import ConfigLoderInterface
+from rate_limit.exceptions import CantFindBackendRedis, InvalidConfig, ConfigNotFound
+from rate_limit.tools import lookup_setting
+from rate_limit.load_config_interface import ConfigLoderInterface
 
 DEFAULT_KEY_PREFIX = "RATE_LIMIT"
 
