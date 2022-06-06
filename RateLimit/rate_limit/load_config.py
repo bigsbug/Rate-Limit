@@ -1,7 +1,7 @@
 from typing import List
 from django.conf import settings
 from exceptions import CantFindBackendRedis, InvalidConfig, ConfigNotFound
-from tools import settings_have
+from tools import lookup_setting
 from load_config_interface import ConfigLoderInterface
 
 DEFAULT_KEY_PREFIX = "RATE_LIMIT"
@@ -9,10 +9,10 @@ DEFAULT_KEY_PREFIX = "RATE_LIMIT"
 
 class BaseConfigLoder(ConfigLoderInterface):
     def __init__(self, settings, targets: List[str]) -> None:
-        self.settins = settings
+        self.settings = settings
         self.targets = targets
 
-    def find_config(self, settings, *targets: list):
+    def find_config(self, settings, targets: list):
         """Find configuration from settings
 
         Raises:
@@ -20,7 +20,7 @@ class BaseConfigLoder(ConfigLoderInterface):
 
         Returns: Any
         """
-        if redis_settings := settings_have(settings, *targets):
+        if redis_settings := lookup_setting(settings, targets):
             ...
         else:
             raise ConfigNotFound(f"Configuration not found in the settings")
@@ -28,7 +28,7 @@ class BaseConfigLoder(ConfigLoderInterface):
         return redis_settings
 
     def extract_config(self):
-        configs = self.find_config(self.settins, *self.targets)
+        configs = self.find_config(self.settings, self.targets)
         return configs
 
 
