@@ -87,13 +87,18 @@ DATABASES = {
 }
 RATE_LIMIT = {
     "REDIS": {
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": "redis://redis-db:6379/1",
+    },
+    "RATE": {
+        "user": "1000/day",
+        "ip": "10/min",
+        "anonymous": "100/day",
     },
 }
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": "redis://redis-db:6379/1",
         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
         "KEY_PREFIX": "example",
     }
