@@ -82,5 +82,33 @@ class LoadRedisConfigFromCaches(BaseConfigLoder):
         return host, key_prefix
 
 
-def show_settings():
-    ...
+class BaseRateLimiter(BaseConfigLoder):
+    def __init__(self, settings, targets: List[str]) -> None:
+        BASE_SETTING: list = ["RATE_LIMIT", "RATE"]
+        self.settings = settings
+        self.targets = BASE_SETTING + targets
+
+    def extract_config(self):
+        user_limt_config = super().extract_config()
+        max_rate, time = user_limt_config.split("/")
+        return max_rate, time
+
+
+class UserLimit(BaseRateLimiter):
+    def __init__(self, settings, targets: List[str] = ["user"]) -> None:
+        super().__init__(settings, targets)
+
+
+class IPLimit(BaseRateLimiter):
+    def __init__(self, settings, targets: List[str] = ["ip"]) -> None:
+        super().__init__(settings, targets)
+
+
+class AnonymousLimit(BaseRateLimiter):
+    def __init__(self, settings, targets: List[str] = ["anonymous"]) -> None:
+        super().__init__(settings, targets)
+
+
+class LimitBy(BaseRateLimiter):
+    def __init__(self, settings, targets: List[str]) -> None:
+        super().__init__(settings, targets)
