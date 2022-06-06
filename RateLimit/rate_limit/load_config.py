@@ -1,38 +1,43 @@
+from typing import List
 from django.conf import settings
-from rate_limit.exceptions import CantFindBackendRedis, InvalidConfig
-from rate_limit.tools import settings_have
-from rate_limit.load_config_interface import LoadConfigDB
+from exceptions import CantFindBackendRedis, InvalidConfig, ConfigNotFound
+from tools import settings_have
+from load_config_interface import ConfigLoderInterface
 
 DEFAULT_KEY_PREFIX = "RATE_LIMIT"
 
 
-class LoadRedisConfigFromRateLimit(LoadConfigDB):
-    def __init__(self, settings) -> None:
-        self.settings = settings
+class BaseConfigLoder(ConfigLoderInterface):
+    def __init__(self, settings, targets: List[str]) -> None:
+        self.settins = settings
+        self.targets = targets
 
-    def find_config(self) -> dict:
-        """find redis configuration from settings
+    def find_config(self, settings, *targets: list):
+        """Find configuration from settings
 
         Raises:
-            CantFindBackendRedis: Can't find backend redis in settings
+            ConfigNotFound: Configuration not found in the settings
 
-        Returns:
-            dict: {
-                "LOCATOIN":"redis://host:6379",
-                "KEY_PREFIX":"RATE_LIMIT"
-            }
+        Returns: Any
         """
-        if redis_settings := settings_have(self.settings, "RATE_LIMIT", "REDIS"):
+        if redis_settings := settings_have(settings, *targets):
             ...
         else:
-            raise CantFindBackendRedis(
-                "configuration not found for Redis in settings please read the documents for more details in this [link]."
-            )
+            raise ConfigNotFound(f"Configuration not found in the settings")
 
         return redis_settings
 
     def extract_config(self):
-        """extract redis configuration
+        configs = self.find_config(self.settins, *self.targets)
+        return configs
+
+
+class LoadRedisConfigFromRateLimit(BaseConfigLoder):
+    def __init__(self, settings, targets: List[str] = ["RATE_LIMIT", "REDIS"]) -> None:
+        super().__init__(settings, targets)
+
+    def extract_config(self):
+        """Extract redis configuration
 
         Returns:
             host : str
@@ -40,7 +45,7 @@ class LoadRedisConfigFromRateLimit(LoadConfigDB):
             key_prefix : str
                 "RATE_LIMIT"
         """
-        redis_settings = self.find_config()
+        redis_settings = super().extract_config()
         key_prefix = redis_settings.get("KEY_PREFIX", DEFAULT_KEY_PREFIX)
         if host := redis_settings.get("LOCATION", None):
             ...
@@ -50,34 +55,9 @@ class LoadRedisConfigFromRateLimit(LoadConfigDB):
         return host, key_prefix
 
 
-class LoadRedisConfigFromCaches(LoadConfigDB):
-    def __init__(self, settings) -> None:
-        self.settings = settings
-
-    def find_config(self) -> dict:
-        """find redis configuration from settings
-
-        Raises:
-            CantFindBackendRedis: Can't find backend redis in settings
-
-        Returns:
-            dict: {
-                "LOCATOIN":"redis://host:6379",
-                "KEY_PREFIX":"RATE_LIMIT"
-            }
-        """
-
-        if redis_settings := settings_have(self.settings, "CACHES", "default"):
-            if "RedisCache" not in redis_settings.get("BACKEND", ""):
-                raise CantFindBackendRedis(
-                    "configuration not found for Redis in settings please read the documents for more details in this [link]."
-                )
-        else:
-            raise CantFindBackendRedis(
-                "configuration not found for Redis in settings please read the documents for more details in this [link]."
-            )
-
-        return redis_settings
+class LoadRedisConfigFromCaches(BaseConfigLoder):
+    def __init__(self, settings, targets: List[str] = ["CACHES", "default"]) -> None:
+        super().__init__(settings, targets)
 
     def extract_config(self):
         """extract redis configuration
@@ -88,7 +68,7 @@ class LoadRedisConfigFromCaches(LoadConfigDB):
             key_prefix : str
                 "RATE_LIMIT"
         """
-        redis_settings = self.find_config()
+        redis_settings = super().extract_config()
         key_prefix = redis_settings.get("KEY_PREFIX", DEFAULT_KEY_PREFIX)
         if host := redis_settings.get("LOCATION", None):
             ...
