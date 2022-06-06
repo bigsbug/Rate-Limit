@@ -8,3 +8,7 @@ class InvalidHostOrPort(Exception):
 
 class InvalidConfig(Exception):
     """The Config is invalid"""
+
+
+class ConfigNotFound(Exception):
+    "The Config Not Found"
