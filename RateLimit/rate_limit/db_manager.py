@@ -1,5 +1,7 @@
-from rate_limit.db_manager_interfaces import DBManager
-from rate_limit.load_config_interface import LoadConfigDB
+from rate_limit.db_manager_interfaces import (
+    DBManagerInterface,
+    PerformActionDBInterface,
+)
 import redis
 from rate_limit.load_config import (
     LoadRedisConfigFromCaches,
@@ -28,32 +30,44 @@ class Redis(DBManagerInterface):
     def instance(self):
         return self.redis
 
-class PerformActionDB:
-    def __init__(self, DB: DBManager) -> None:
-        self.db = DB
 
-    def new_view_by_ip(self, ip):
+class PerformActionRedis(PerformActionDBInterface):
+    def set_db(self, DB: DBManagerInterface) -> None:
+        self.db: redis.Redis = DB.instance()
+        self.key_prefix = DB.key_prefix
+        self.save_pattern = self.key_prefix + ":"
+
+    def set_expire(self, key, time_expire):
+        return self.db.expire(self.save_pattern + key, time_expire)
+
+    def show_ttl(self, key):
+        return self.db.ttl(self.save_pattern + key)
+
+    def new_view(self, key) -> str:
+        key = self.save_pattern + str(key)
+        print(key)
+        return self.db.incrby(key, 1)
+
+    def show_view(self, key) -> str:
+        count_rate = self.db.get(self.save_pattern + str(key))
+        return int(count_rate) if count_rate != None else 0
+
+    def add_to_whitelist(self, target) -> bool:
+        return self.db.sadd(self.save_pattern + "whitelist", target)
+
+    def is_in_whitelist(self, target) -> bool:
+        return self.db.sismember(self.save_pattern + "whitelist", target)
+
+    def remove_from_whitelist(self, target) -> bool:
         ...
 
-    def show_view_by_ip(self, ip):
-        ...
+    def add_to_blacklist(self, target) -> bool:
+        return self.db.sadd(self.save_pattern + "blacklist", target)
 
-    def new_view_by_user(self, user):
-        ...
+    def is_in_blacklist(self, target) -> bool:
+        return self.db.sismember(self.save_pattern + "blacklist", target)
 
-    def show_view_by_user(self, user):
-        ...
-
-    def add_to_whitelist(self, target):
-        ...
-
-    def remove_from_whitelist(self, target):
-        ...
-
-    def add_to_blacklist(self, target):
-        ...
-
-    def remove_from_blacklist(self, target):
+    def remove_from_blacklist(self, target) -> bool:
         ...
 
 
