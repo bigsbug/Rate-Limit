@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-=j+)^11k3-2cv3_mbr8&*@$^o&)im8d@b=48%_hisvse2df=d^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -89,10 +89,11 @@ RATE_LIMIT = {
     "REDIS": {
         "LOCATION": "redis://redis-db:6379/1",
     },
+    "KEY_PERFIX": "RATE_LIMIT",
     "RATE": {
-        "user": "1000/day",
-        "ip": "10/min",
-        "anonymous": "100/day",
+        "user": "2000/day",
+        "ip": "100/min",
+        "anonymous": "100/min",
     },
 }
 CACHES = {
