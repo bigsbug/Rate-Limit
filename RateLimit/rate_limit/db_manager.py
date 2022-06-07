@@ -2,6 +2,7 @@ from rate_limit.db_manager_interfaces import (
     DBManagerInterface,
     PerformActionDBInterface,
 )
+from rate_limit.load_config_interface import ConfigLoderInterface
 import redis
 from rate_limit.load_config import (
     LoadRedisConfigFromCaches,
