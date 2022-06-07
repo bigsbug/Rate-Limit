@@ -82,6 +82,19 @@ class LoadRedisConfigFromCaches(BaseConfigLoder):
         return host, key_prefix
 
 
+class LoadKeyPerfix(BaseConfigLoder):
+    def __init__(
+        self, settings, targets: List[str] = ["RATE_LIMIT", "KEY_PERFIX"]
+    ) -> None:
+        super().__init__(settings, targets)
+
+    def extract_config(self):
+        config = super().extract_config()
+        if config == None:
+            return DEFAULT_KEY_PREFIX
+        return config
+
+
 class BaseRateLimiter(BaseConfigLoder):
     def __init__(self, settings, targets: List[str]) -> None:
         BASE_SETTING: list = ["RATE_LIMIT", "RATE"]
