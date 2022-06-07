@@ -1,24 +1,33 @@
-from typing import Callable
-from django.http import HttpRequest
-from rate_limit.tools import get_ip
+from typing import List, Callable
+from django.http import HttpRequest, HttpResponse
+from rate_limit.db_manager import (
+    LoadRedisConfigFromRateLimit,
+    PerformActionRedis,
+    Redis,
+    settings,
+)
+from rate_limit.limiters import BaseRateLimit
 
-from rate_limit.db_manager import DB
+myredis = Redis()
+redis_config = LoadRedisConfigFromRateLimit(settings)
+myredis.load_config(redis_config)
+myredis.connect()
+performaction = PerformActionRedis()
+performaction.set_db(myredis)
 
 
-def rate_limit(max_rate=1):
-    def decorator(func: Callable):
+def rate_limit(type_limits: List[BaseRateLimit]):
+    def _rate_limit(func: Callable):
         def inner(request: HttpRequest, *args, **kwargs):
+            for type_limit in type_limits:
+                type_limit.set_db(performaction)
+                if type_limit.get_rate(request) >= type_limit.max_rate:
+                    return HttpResponse("You cant access now to this site")
+                count_rates = type_limit.new_view(request)
+                request.count_hit = count_rates
 
-            ip = get_ip(request)
-            print(
-                f"The Decorator rate_limit is runed wiht max_rate {max_rate} for ip {ip}"
-            )
-            DB()
-            # print(
-            #     f"The Decorator rate_limit is runed wiht max_rate {max_rate} for ip {ip}"
-
-            return func(request, *args, **kwargs)
+                return func(request, *args, **kwargs)
 
         return inner
 
-    return decorator
+    return _rate_limit
