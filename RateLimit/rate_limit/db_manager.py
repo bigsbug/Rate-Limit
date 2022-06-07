@@ -70,10 +70,3 @@ class PerformActionRedis(PerformActionDBInterface):
 
     def remove_from_blacklist(self, target) -> bool:
         ...
-
-
-def DB():
-    myredis = Redis()
-    redis_config = LoadRedisConfigFromRateLimit(settings)
-    myredis.load_config(redis_config)
-    myredis.connect()
