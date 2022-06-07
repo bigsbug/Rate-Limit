@@ -9,24 +9,24 @@ from rate_limit.load_config import (
 from django.conf import settings
 
 
-class Redis(DBManager):
+class Redis(DBManagerInterface):
     host: str
     key_prefix: str
 
-    def __new__(cls) -> None:
-        if not hasattr(Redis, "_ins"):
-            cls._ins = super().__new__(cls)
-        return cls._ins
-
-    def load_config(self, loader_config: LoadConfigDB):
-        self.host, self.key_prefix = loader_config.extract_config()
+    def load_config(self, config_loder: ConfigLoderInterface):
+        self.host, self.key_prefix = config_loder.extract_config()
 
     def connect(self):
-        print(f"Connecting to {self.host}")
+        self.redis = redis.from_url(self.host, decode_responses=True)
+        self.redis.ping()
+        print(f"Connecting to redis on host {self.host}")
 
     def close(self):
-        print(f"closing Connectino DB on port {self.host}")
+        self.redis.close()
+        print(f"Closing redis connection DB on host {self.host}")
 
+    def instance(self):
+        return self.redis
 
 class PerformActionDB:
     def __init__(self, DB: DBManager) -> None:
