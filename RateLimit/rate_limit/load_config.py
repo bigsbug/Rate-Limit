@@ -1,3 +1,5 @@
+"""Offer some utils to load configuration from django settings
+"""
 from typing import List
 from django.conf import settings
 from rate_limit.exceptions import CantFindBackendRedis, InvalidConfig, ConfigNotFound
@@ -10,6 +12,8 @@ DEFAULT_KEY_PREFIX = "RATE_LIMIT"
 
 
 class TimeLimit(Enum):
+    """Provide Some Time AS Sec To Avoid Mestike"""
+
     SEC = 1
     MIN = SEC * 60
     HOUR = MIN * 60
