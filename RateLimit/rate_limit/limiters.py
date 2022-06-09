@@ -1,6 +1,6 @@
 from rate_limit.db_manager_interfaces import RateLimiterInterface
 
-from rate_limit.load_config import LimitBy, LoadKeyPerfix
+from rate_limit.load_config import LimitBy, LoadKeyPerfix, TimeLimit
 
 from django.conf import settings
 
@@ -31,28 +31,14 @@ class BaseRateLimit(RateLimiterInterface):
         return self.max_rate_count
 
     def expireing(self, key):
-        MIN_SEC = 60
-        HOURS_SEC = MIN_SEC * 60
-        DAY_SEC = HOURS_SEC * 24
-        MONTH_SEC = DAY_SEC * 30
-        YEAR_SEC = MONTH_SEC * 12
-        if self.time == "min":
-            self.time = MIN_SEC
-        elif self.time == "hours":
-            self.time = HOURS_SEC
-        elif self.time == "day":
-            self.time = DAY_SEC
-        elif self.time == "month":
-            self.time = MONTH_SEC
-        elif self.time == "year":
-            self.time = YEAR_SEC
-        # else:
-        #     self.time = 0
-        ttl = self.performer_action_db.show_ttl(key)
-        print("ttl", ttl)
+        try:
+            time = TimeLimit[str.upper(self.time)].value
+        except KeyError:
+            raise InvalidConfig("The time of rate limit is incorrect")
 
+        ttl = self.performer_action_db.show_ttl(key)
         if ttl < 0:
-            self.performer_action_db.set_expire(key, self.time)
+            self.performer_action_db.set_expire(key, time)
 
 
 class RateLimitUser(BaseRateLimit):

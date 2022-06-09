@@ -4,7 +4,19 @@ from rate_limit.exceptions import CantFindBackendRedis, InvalidConfig, ConfigNot
 from rate_limit.tools import lookup_setting
 from rate_limit.load_config_interface import ConfigLoderInterface
 
+from enum import Enum
+
 DEFAULT_KEY_PREFIX = "RATE_LIMIT"
+
+
+class TimeLimit(Enum):
+    SEC = 1
+    MIN = SEC * 60
+    HOUR = MIN * 60
+    DAY = HOUR * 24
+    WEEKS = DAY * 7
+    MONTH = DAY * 30
+    YEAR = MONTH * 12
 
 
 class BaseConfigLoder(ConfigLoderInterface):
