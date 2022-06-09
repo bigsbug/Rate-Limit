@@ -1,3 +1,4 @@
+"""Decorators For Apply Some Limiting To Views"""
 from typing import List, Callable
 from django.http import HttpRequest, HttpResponse
 from rate_limit.db_manager import (
