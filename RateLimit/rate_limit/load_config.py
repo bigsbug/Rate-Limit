@@ -24,12 +24,19 @@ class TimeLimit(Enum):
 
 
 class BaseConfigLoder(ConfigLoderInterface):
+    """Base Class For Creating New Config Loader,
+    Providing Some Of Common Base Method For Config Loaders
+
+    Args:
+        ConfigLoderInterface (interface): Config Loader Interface
+    """
+
     def __init__(self, settings, targets: List[str]) -> None:
         self.settings = settings
         self.targets = targets
 
     def find_config(self, settings, targets: list):
-        """Find configuration from settings
+        """Find Configuration From Settings
 
         Raises:
             ConfigNotFound: Configuration not found in the settings
