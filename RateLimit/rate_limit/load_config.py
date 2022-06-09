@@ -1,7 +1,9 @@
 """Offer some utils to load configuration from django settings
 """
 from typing import List
+
 from django.conf import settings
+
 from rate_limit.exceptions import CantFindBackendRedis, InvalidConfig, ConfigNotFound
 from rate_limit.tools import lookup_setting
 from rate_limit.load_config_interface import ConfigLoderInterface
