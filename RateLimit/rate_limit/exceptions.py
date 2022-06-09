@@ -1,3 +1,7 @@
+"""Some Tipical Exception Can Be Happend
+"""
+
+
 class CantFindBackendRedis(Exception):
     """Cant Find Backend Redis in default CACHE settings"""
 
