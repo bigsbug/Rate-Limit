@@ -20,20 +20,9 @@ class BaseRateLimit(RateLimiterInterface):
         RateLimiterInterface (interface): Interface of Limiters
     """
 
-    def __init__(self, max_rate=None, time="min", type_limit="") -> None:
-        self.type_limit = type_limit
-        self.load_config()
-        #  if specify a new rate limit then should select a time for limiting access
-        if max_rate:
-            self.max_rate_count = max_rate
-            self.time = time
-
-    def load_config(self):
-        """Load Max Rate and Time Limit From Settings"""
-        self.max_rate_count, self.time = LimitBy(
-            settings, [self.type_limit]
-        ).extract_config()
-        self.max_rate_count = int(self.max_rate_count)
+    def __init__(self, max_rate, time) -> None:
+        self.max_rate_count = int(max_rate)
+        self.time = time
 
     def set_db(self, performer_action_db: PerformActionDBInterface):
         """Setting A Performer DB To Interacting With DataBase
@@ -73,14 +62,15 @@ class BaseRateLimit(RateLimiterInterface):
 
 
 class RateLimitUser(BaseRateLimit):
-    def __init__(self, max_rate=None, time="min", type_limit="user") -> None:
-
-        super().__init__(max_rate, time, type_limit)
+    def __init__(self, max_rate=None, time="min") -> None:
+        if max_rate == None:
+            max_rate, time = LimitBy(settings, ["user"]).extract_config()
+        super().__init__(max_rate, time)
 
     def get_rate(self, request):
         user = request.user
         if not user.is_anonymous:
-            key = f"{self.type_limit}:{user.username}"
+            key = f"user:{user.username}"
             count = self.performer_action_db.show_view(key)
             return count
         return 0
@@ -88,21 +78,23 @@ class RateLimitUser(BaseRateLimit):
     def new_view(self, request):
         user = request.user
         if not user.is_anonymous:
-            key = f"{self.type_limit}:{user.username}"
+            key = f"user:{user.username}"
             count = self.performer_action_db.new_view(key)
             self.expireing(key)
             return count
 
 
 class RateLimitAnonymous(BaseRateLimit):
-    def __init__(self, max_rate=None, time="min", type_limit="anonymous") -> None:
-        super().__init__(max_rate, time, type_limit)
+    def __init__(self, max_rate=None, time="min") -> None:
+        if max_rate == None:
+            max_rate, time = LimitBy(settings, ["anonymous"]).extract_config()
+        super().__init__(max_rate, time)
 
     def get_rate(self, request):
         user = request.user
         ip = get_ip(request)
         if user.is_anonymous:
-            key = f"{self.type_limit}:{ip}"
+            key = f"anonymous:{ip}"
             count = self.performer_action_db.show_view(key)
             self.expireing(key)
             return count
@@ -112,26 +104,28 @@ class RateLimitAnonymous(BaseRateLimit):
         user = request.user
         ip = get_ip(request)
         if user.is_anonymous:
-            key = f"{self.type_limit}:{ip}"
+            key = f"anonymous:{ip}"
             count = self.performer_action_db.new_view(key)
             self.expireing(key)
             return count
 
 
 class RateLimitIP(BaseRateLimit):
-    def __init__(self, max_rate=None, time="min", type_limit="ip") -> None:
-        super().__init__(max_rate, time, type_limit)
+    def __init__(self, max_rate=None, time="min") -> None:
+        if max_rate == None:
+            max_rate, time = LimitBy(settings, ["ip"]).extract_config()
+        super().__init__(max_rate, time)
 
     def get_rate(self, request):
         ip = get_ip(request)
 
-        key = f"{self.type_limit}:{ip}"
+        key = f"ip:{ip}"
         count = self.performer_action_db.show_view(key)
         return count
 
     def new_view(self, request):
         ip = get_ip(request)
-        key = f"{self.type_limit}:{ip}"
+        key = f"ip:{ip}"
         print(key)
         count = self.performer_action_db.new_view(key)
         self.expireing(key)
