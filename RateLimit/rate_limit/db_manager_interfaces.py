@@ -64,6 +64,7 @@ class RateLimiterInterface(ABC):
     def load_config(self):
         ...
 
+    @abstractclassmethod
     def set_db(self, db_actioner: PerformActionDBInterface):
         ...
 
