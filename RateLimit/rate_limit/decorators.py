@@ -5,17 +5,15 @@ from typing import List, Callable
 from django.http import HttpRequest, HttpResponse
 
 from rate_limit.db_manager import (
-    LoadRedisConfigFromRateLimit,
     PerformActionRedis,
     Redis,
     settings,
 )
+from rate_limit.load_config import LoadRedisConfigFromRateLimit
 from rate_limit.limiters import BaseRateLimit
 
-
-myredis = Redis()
-redis_config = LoadRedisConfigFromRateLimit(settings)
-myredis.load_config(redis_config)
+host, key_prefix = LoadRedisConfigFromRateLimit(settings).extract_config()
+myredis = Redis(host, key_prefix)
 myredis.connect()
 performaction = PerformActionRedis()
 performaction.set_db(myredis)

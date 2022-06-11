@@ -9,9 +9,6 @@ class DBManagerInterface(ABC):
     def close(self):
         ...
 
-    def load_config(self):
-        ...
-
     def instance(self):
         ...
 

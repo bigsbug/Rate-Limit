@@ -16,8 +16,9 @@ class Redis(DBManagerInterface):
     host: str
     key_prefix: str
 
-    def load_config(self, config_loder: ConfigLoderInterface):
-        self.host, self.key_prefix = config_loder.extract_config()
+    def __init__(self, host: str, key_prefix: str) -> None:
+        self.host = host
+        self.key_prefix = key_prefix
 
     def connect(self):
         self.redis = redis.from_url(self.host, decode_responses=True)
