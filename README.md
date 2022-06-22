@@ -1,2 +1,2 @@
 # Rate-Limit
-a little framework for limiting access
+a micro framework for limiting access
